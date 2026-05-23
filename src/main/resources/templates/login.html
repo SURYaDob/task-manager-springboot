@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Task Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+        .left-panel {
+            background: linear-gradient(135deg, #1A5276, #2980b9);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+        }
+        .left-panel .icon { font-size: 70px; margin-bottom: 24px; }
+        .left-panel h2 { font-size: 32px; margin-bottom: 12px; }
+        .left-panel p { font-size: 16px; opacity: 0.8; text-align: center; line-height: 1.6; }
+        .features { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+        .feature { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+        .feature span { font-size: 20px; }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 40px;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { color: #1A5276; margin-bottom: 8px; font-size: 26px; }
+        p.subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: #333; font-weight: bold; }
+        input {
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid #ddd; border-radius: 8px;
+            font-size: 14px; outline: none;
+        }
+        input:focus { border-color: #2980b9; }
+        button {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #1A5276, #2980b9);
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; cursor: pointer; margin-top: 8px;
+        }
+        button:hover { opacity: 0.9; }
+        .error {
+            background: #fdecea; color: #c0392b;
+            padding: 10px; border-radius: 8px;
+            margin-bottom: 16px; font-size: 14px;
+        }
+        .link { text-align: center; margin-top: 20px; font-size: 14px; color: #666; }
+        .link a { color: #1A5276; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <div class="icon">📋</div>
+        <h2>Task Manager</h2>
+        <p>Stay organized, stay productive.<br>Manage your tasks with ease.</p>
+        <div class="features">
+            <div class="feature"><span>✅</span> Track your daily tasks</div>
+            <div class="feature"><span>⏰</span> Never miss a due date</div>
+            <div class="feature"><span>📊</span> Monitor your progress</div>
+            <div class="feature"><span>🔒</span> Your data stays private</div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="card">
+            <h2>Welcome Back!</h2>
+            <p class="subtitle">Login to manage your tasks</p>
+
+            <div class="error" th:if="${error}" th:text="${error}"></div>
+
+            <form method="post" action="/login">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Enter your email" required />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter your password" required />
+                </div>
+                <button type="submit">Login</button>
+            </form>
+
+            <div class="link">
+                Don't have an account? <a href="/register">Register here</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

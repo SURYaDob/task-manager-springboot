@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Tasks</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .navbar {
+            background: linear-gradient(135deg, #1A5276, #2980b9);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .navbar h1 { color: white; font-size: 22px; }
+        .navbar .nav-right { display: flex; align-items: center; gap: 16px; }
+        .navbar span { color: #aed6f1; font-size: 14px; }
+        .navbar a {
+            color: white; text-decoration: none;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px; border-radius: 6px; font-size: 14px;
+        }
+        .navbar a:hover { background: rgba(255,255,255,0.25); }
+        .badge-count {
+            background: #e74c3c; color: white;
+            border-radius: 12px; padding: 2px 8px;
+            font-size: 12px; font-weight: bold;
+        }
+        .stats { display: flex; gap: 20px; padding: 28px 32px 0; }
+        .stat-card {
+            background: white; padding: 24px 28px;
+            border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            flex: 1; text-align: center; border-top: 4px solid #2980b9;
+        }
+        .stat-card.pending-card { border-top-color: #e67e22; }
+        .stat-card.completed-card { border-top-color: #27ae60; }
+        .stat-card h2 { font-size: 40px; color: #1A5276; }
+        .stat-card.pending-card h2 { color: #e67e22; }
+        .stat-card.completed-card h2 { color: #27ae60; }
+        .stat-card p { color: #888; font-size: 14px; margin-top: 6px; }
+        .main { padding: 24px 32px; }
+        .add-task {
+            background: white; padding: 28px;
+            border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 24px;
+        }
+        .add-task h3 { color: #1A5276; margin-bottom: 18px; font-size: 18px; }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .form-row input {
+            flex: 1; padding: 11px 14px;
+            border: 1.5px solid #ddd; border-radius: 8px;
+            font-size: 14px; outline: none; min-width: 150px;
+        }
+        .form-row input:focus { border-color: #2980b9; }
+        .form-row button {
+            padding: 11px 28px;
+            background: linear-gradient(135deg, #1A5276, #2980b9);
+            color: white; border: none; border-radius: 8px;
+            font-size: 14px; cursor: pointer;
+        }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 18px; }
+        .filter-bar a {
+            padding: 8px 22px; border-radius: 20px;
+            text-decoration: none; font-size: 14px;
+            background: white; color: #555;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .filter-bar a.active {
+            background: linear-gradient(135deg, #1A5276, #2980b9);
+            color: white;
+        }
+        .task-card {
+            background: white; padding: 20px 24px;
+            border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 12px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .task-card.completed { border-left: 5px solid #27ae60; }
+        .task-card.pending { border-left: 5px solid #e67e22; }
+        .task-info h4 { font-size: 16px; color: #1C1C1C; margin-bottom: 5px; }
+        .task-card.completed .task-info h4 { text-decoration: line-through; color: #aaa; }
+        .task-info p { font-size: 13px; color: #888; }
+        .task-info .due { font-size: 12px; color: #aaa; margin-top: 5px; }
+        .task-actions { display: flex; gap: 8px; align-items: center; }
+        .task-actions a {
+            padding: 7px 14px; border-radius: 7px;
+            text-decoration: none; font-size: 13px;
+        }
+        .btn-complete { background: #eafaf1; color: #27ae60; }
+        .btn-pending { background: #fef9e7; color: #e67e22; }
+        .btn-delete { background: #fdecea; color: #c0392b; }
+        .btn-edit { background: #eaf4fb; color: #1A5276; }
+        .badge { padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .badge.pending { background: #fef9e7; color: #e67e22; }
+        .badge.completed { background: #eafaf1; color: #27ae60; }
+        .empty {
+            text-align: center; padding: 60px 40px;
+            background: white; border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .empty .empty-icon { font-size: 60px; margin-bottom: 16px; }
+        .empty h3 { color: #1A5276; font-size: 20px; margin-bottom: 8px; }
+        .empty p { color: #aaa; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>📋 Task Manager</h1>
+        <div class="nav-right">
+            <span>👋 Welcome, <strong th:text="${user.fullName}">User</strong>!</span>
+            <span th:if="${pending > 0}">
+                <span class="badge-count" th:text="${pending} + ' pending'">0 pending</span>
+            </span>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <h2 th:text="${total}">0</h2>
+            <p>Total Tasks</p>
+        </div>
+        <div class="stat-card pending-card">
+            <h2 th:text="${pending}">0</h2>
+            <p>Pending</p>
+        </div>
+        <div class="stat-card completed-card">
+            <h2 th:text="${completed}">0</h2>
+            <p>Completed</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="add-task">
+            <h3>➕ Add New Task</h3>
+            <form method="post" action="/tasks/create">
+                <div class="form-row">
+                    <input type="text" name="title" placeholder="Task title" required />
+                    <input type="text" name="description" placeholder="Description" />
+                    <input type="date" name="dueDate" required />
+                    <button type="submit">Add Task</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-bar">
+            <a href="/tasks" th:class="${filter == null} ? 'active' : ''">All</a>
+            <a href="/tasks?filter=PENDING" th:class="${filter == 'PENDING'} ? 'active' : ''">⏳ Pending</a>
+            <a href="/tasks?filter=COMPLETED" th:class="${filter == 'COMPLETED'} ? 'active' : ''">✅ Completed</a>
+        </div>
+
+        <div th:if="${tasks.empty}" class="empty">
+            <div class="empty-icon">🎯</div>
+            <h3>No tasks yet!</h3>
+            <p>Add your first task above and start being productive.</p>
+        </div>
+
+        <div th:each="task : ${tasks}">
+            <div th:class="${task.status == 'COMPLETED'} ? 'task-card completed' : 'task-card pending'">
+                <div class="task-info">
+                    <h4 th:text="${task.title}">Task Title</h4>
+                    <p th:text="${task.description}">Description</p>
+                    <p class="due" th:text="'Due: ' + ${task.dueDate}">Due Date</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span th:text="${task.status}"
+                          th:class="${task.status == 'COMPLETED'} ? 'badge completed' : 'badge pending'">
+                    </span>
+                    <div class="task-actions">
+                        <a th:href="@{/tasks/edit/{id}(id=${task.id})}" class="btn-edit">✏️ Edit</a>
+                        <a th:if="${task.status == 'PENDING'}"
+                           th:href="@{/tasks/status/{id}(id=${task.id},status='COMPLETED')}"
+                           class="btn-complete">✓ Complete</a>
+                        <a th:if="${task.status == 'COMPLETED'}"
+                           th:href="@{/tasks/status/{id}(id=${task.id},status='PENDING')}"
+                           class="btn-pending">↩ Undo</a>
+                        <a th:href="@{/tasks/delete/{id}(id=${task.id})}"
+                           class="btn-delete"
+                           onclick="return confirm('Delete this task?')">✕ Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
