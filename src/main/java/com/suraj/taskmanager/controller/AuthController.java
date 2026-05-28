@@ -20,11 +20,6 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    // Redirect root to login page
-    @GetMapping("/")
-    public String rootRedirect() {
-        return "redirect:/login";
-    }
 
     // Show login page
     @GetMapping("/login")
